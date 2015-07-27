@@ -1,31 +1,47 @@
 package com.model;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by ROHIT on 27-07-2015.
  */
 public class ParkingLot {
 
-    List<Car> cars = new ArrayList<Car>();
+    Map<Integer, Car> cars;
     private int capacity;
-    private static int currentCount;
+    private int currentCount = 0;
+    private boolean isFull = false;
+    private ParkingLotOwner plo;
 
-    public ParkingLot(){}
+    public ParkingLot() {
+    }
 
-    public ParkingLot(int capacity){
+    public ParkingLot(ParkingLotOwner plo,int capacity){
+        cars = new HashMap<Integer, Car>();
+        this.plo = plo;
         this.capacity = capacity;
     }
 
-    public int parkingOfCar(Car c) throws ParkingLotFullException {
-           if(currentCount == capacity) {
-               throw new ParkingLotFullException("Parking space not available!!");
-           }else{
-                   cars.add(c);
-                   return ++currentCount;
-               }
+    public int parkCar(Car c) {
 
+        if (cars.containsValue(c))
+            throw new CarAlreadyExitException("car already exists!");
+
+        if(currentCount == capacity)
+            throw new ParkingLotFullException("Parking space not available!!");
+
+        if (currentCount +1 == capacity)
+            plo.notificationSend();
+
+        cars.put(currentCount, c);
+        return currentCount++;
+    }
+
+    public Car unParkCar(int token){
+        if(cars.get(token) == null )
+            throw new CarNotFound("car not found!");
+        else
+            return cars.remove(token);
     }
 
     public int getToken() {
@@ -43,4 +59,6 @@ public class ParkingLot {
     public void setCapacity(int capacity) {
         this.capacity = capacity;
     }
+
+
 }
